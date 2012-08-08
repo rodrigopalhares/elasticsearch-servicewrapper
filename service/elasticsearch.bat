@@ -1,6 +1,24 @@
 @echo off
 setlocal
 
+set _COMMAND=%1
+if %_COMMAND%==--start goto command_ok
+if %_COMMAND%==--stop goto command_ok
+if %_COMMAND%==--console goto command_ok
+if %_COMMAND%==--install goto command_ok
+if %_COMMAND%==--remove goto command_ok
+
+echo Usage: elasticsearch.bat command [elasticsearch.conf]
+echo where command can be one of:
+echo   --console Run as a console application
+echo   --start   Start an NT service
+echo   --stop    Stop a running NT service
+echo   --install Install as an NT service
+echo   --remove  Uninstall/Remove as an NT service
+goto :eof
+
+:command_ok
+
 rem Java Service Wrapper command based script.
 
 rem -----------------------------------------------------------------------------
@@ -48,10 +66,10 @@ if "%PROCESSOR_ARCHITECTURE%"=="IA64" goto ia64
 set _WRAPPER_L_EXE=%_REALPATH%%_WRAPPER_BASE%-windows-x86-32.exe
 goto search
 :amd64
-set _WRAPPER_L_EXE=%_REALPATH%%_WRAPPER_BASE%-windows-x86-64.exe
+set _WRAPPER_L_EXE=%_REALPATH%%_WRAPPER_BASE%-windows-x86-32.exe
 goto search
 :ia64
-set _WRAPPER_L_EXE=%_REALPATH%%_WRAPPER_BASE%-windows-ia-64.exe
+set _WRAPPER_L_EXE=%_REALPATH%%_WRAPPER_BASE%-windows-x86-32.exe
 goto search
 :search
 set _WRAPPER_EXE=%_WRAPPER_L_EXE%
@@ -68,7 +86,7 @@ rem
 rem Find the wrapper.conf
 rem
 :conf
-set _WRAPPER_CONF="%~f1"
+set _WRAPPER_CONF="%~f2"
 if not [%_WRAPPER_CONF%]==[""] (
     shift
     goto :startup
@@ -82,14 +100,14 @@ rem
 
 rem Collect an parameters
 :parameters
-set _PARAMETERS=%_PARAMETERS% %1
+set _PARAMETERS=%_PARAMETERS% %2
 shift
-if not [%1]==[] goto :parameters
+if not [%2]==[] goto :parameters
 
 if [%_PASS_THROUGH%]==[] (
-    "%_WRAPPER_EXE%" -c %_WRAPPER_CONF%
+    "%_WRAPPER_EXE%" %_COMMAND% %_WRAPPER_CONF%
 ) else (
-    "%_WRAPPER_EXE%" -c %_WRAPPER_CONF% -- %_PARAMETERS%
+    "%_WRAPPER_EXE%" %_COMMAND% %_WRAPPER_CONF% -- %_PARAMETERS%
 )
 if not errorlevel 1 goto :eof
 pause
