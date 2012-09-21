@@ -1,5 +1,5 @@
 A service wrapper execution for elasticsearch using http://wrapper.tanukisoftware.org/.
 
-* Place the `service` under elasticsearch `bin` directory.
+* Place the 'service' under elasticsearch 'bin' directory.
 * Edit the service\elasticsearch.conf
 * Run service\elasticsearch.bat --install
